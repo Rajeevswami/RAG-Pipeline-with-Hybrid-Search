@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#f4f3ed" />
+    <meta name="description" content="Search internal documents with grounded answers and verified citations." />
+    <title>Atlas — Internal Knowledge</title>
+    <link rel="preconnect" href="/" />
+    <link rel="stylesheet" href="/assets/styles.css" />
+    <script src="/assets/app.js" defer></script>
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="topbar">
+        <a class="brand" href="/" aria-label="Atlas home">
+          <span class="brand-mark" aria-hidden="true"><span></span><span></span><span></span></span>
+          <span>ATLAS<span class="brand-divider">/</span><span class="brand-sub">KNOWLEDGE</span></span>
+        </a>
+        <div class="topbar-meta">
+          <span class="status-dot" id="status-dot"></span>
+          <span id="system-status">Connecting to your workspace…</span>
+          <span class="topbar-separator"></span>
+          <span class="topbar-label">PRIVATE WORKSPACE</span>
+        </div>
+      </header>
+
+      <main class="workspace">
+        <aside class="sidebar" aria-label="Document workspace">
+          <div class="sidebar-heading">
+            <span class="eyebrow">YOUR LIBRARY</span>
+            <span class="library-count" id="doc-count">0</span>
+          </div>
+
+          <section class="upload-card" id="dropzone" aria-label="Upload documents">
+            <div class="upload-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none"><path d="M12 16V4m0 0L7.5 8.5M12 4l4.5 4.5M5 15.5v3A1.5 1.5 0 0 0 6.5 20h11a1.5 1.5 0 0 0 1.5-1.5v-3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
+            <div class="upload-copy">
+              <h2>Add your documents</h2>
+              <p>Drop files here or browse your workspace.</p>
+            </div>
+            <label class="button button-outline upload-button" for="file-input">
+              <span>Choose files</span>
+              <input id="file-input" type="file" accept=".pdf,.docx,.txt,.md,.html,.htm" multiple />
+            </label>
+            <p class="file-hint">PDF · DOCX · TXT · MD · HTML <span> / </span> 25 MB max</p>
+            <div id="upload-feedback" class="inline-feedback" role="status" aria-live="polite"></div>
+          </section>
+
+          <section class="library-section">
+            <div class="section-heading">
+              <h2>Indexed documents</h2>
+              <button class="icon-button" id="refresh-documents" type="button" aria-label="Refresh documents" title="Refresh">
+                <svg viewBox="0 0 20 20" fill="none"><path d="M16 8a6.1 6.1 0 0 0-10.4-2L4 7.5M4 7.5V4.2M4 7.5h3.3M4 12a6.1 6.1 0 0 0 10.4 2L16 12.5m0 0v3.3m0-3.3h-3.3" stroke="currentColor" stroke-width="1.35" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </button>
+            </div>
+            <div class="document-list" id="document-list">
+              <div class="empty-library">
+                <span class="empty-dash"></span>
+                <p>Your library is ready.<br />Add a document to get started.</p>
+              </div>
+            </div>
+          </section>
+
+          <div class="privacy-note">
+            <span class="lock-icon" aria-hidden="true">
+              <svg viewBox="0 0 20 20" fill="none"><rect x="4.1" y="8.3" width="11.8" height="8.2" rx="1.6" stroke="currentColor" stroke-width="1.25"/><path d="M6.7 8.1V5.8a3.3 3.3 0 0 1 6.6 0v2.3" stroke="currentColor" stroke-width="1.25" stroke-linecap="round"/><circle cx="10" cy="12.2" r=".8" fill="currentColor"/></svg>
+            </span>
+            <span><strong>Your docs stay yours.</strong><br />Files are indexed for this workspace only.</span>
+          </div>
+        </aside>
+
+        <section class="main-panel">
+          <div class="main-inner">
+            <div class="hero">
+              <div class="eyebrow hero-eyebrow"><span class="hero-index">01</span> / ASK YOUR KNOWLEDGE BASE</div>
+              <h1>Get the answer.<br /><em>Keep the evidence.</em></h1>
+              <p class="hero-description">Search across your company's knowledge. Every answer is grounded in your documents, with sources you can check.</p>
+              <div class="capability-row" aria-label="Retrieval capabilities">
+                <span><i class="capability-mark dense"></i> DENSE SEARCH</span>
+                <span><i class="capability-mark lexical"></i> KEYWORD MATCH</span>
+                <span><i class="capability-mark rerank"></i> RERANKED</span>
+              </div>
+            </div>
+
+            <div class="setup-notice" id="setup-notice" hidden>
+              <span class="notice-icon" aria-hidden="true">!</span>
+              <div><strong>One quick setup step</strong><p id="setup-copy">Add provider credentials to your environment to enable grounded answers.</p></div>
+            </div>
+
+            <form class="query-form" id="query-form">
+              <label class="query-label" for="question">WHAT WOULD YOU LIKE TO KNOW?</label>
+              <div class="query-entry">
+                <textarea id="question" name="question" rows="2" maxlength="3000" placeholder="Ask a question about your internal docs…" required></textarea>
+                <div class="query-controls">
+                  <span class="keyboard-hint">↵ <span>Ask</span> <kbd>⌘</kbd><kbd>Enter</kbd></span>
+                  <button class="button button-primary" id="ask-button" type="submit">
+                    <span class="button-label">Ask Atlas</span>
+                    <svg class="button-arrow" viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M4 10h11m-4.5-4.5L15 10l-4.5 4.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                  </button>
+                </div>
+              </div>
+            </form>
+
+            <div class="suggestions">
+              <span class="suggestions-label">TRY ASKING</span>
+              <button type="button" class="suggestion" data-question="What is our policy on paid time off?">PTO policy <span>↗</span></button>
+              <button type="button" class="suggestion" data-question="How do I request reimbursement for a work expense?">Expense reimbursement <span>↗</span></button>
+              <button type="button" class="suggestion" data-question="What are the steps for onboarding a new employee?">New hire onboarding <span>↗</span></button>
+            </div>
+
+            <div class="query-error" id="query-error" role="alert" hidden></div>
+            <section class="results" id="results" aria-live="polite" hidden>
+              <div class="results-topline">
+                <div class="eyebrow"><span class="hero-index">02</span> / YOUR ANSWER</div>
+                <div class="verification-badge" id="verification-badge">
+                  <span class="verified-check" aria-hidden="true">✓</span>
+                  <span id="verification-label">CITATIONS VERIFIED</span>
+                </div>
+              </div>
+              <div class="answer-block">
+                <p class="answer-text" id="answer-text"></p>
+                <div class="answer-meta"><span id="answer-meta">Grounded in your indexed documents</span><span id="answer-latency"></span></div>
+              </div>
+              <div class="evidence-header">
+                <div><span class="eyebrow">SOURCE CHECK</span><h2>Evidence behind this answer</h2></div>
+                <span class="evidence-count" id="evidence-count">0 SOURCES</span>
+              </div>
+              <div class="citation-list" id="citation-list"></div>
+              <details class="retrieval-details" id="retrieval-details" hidden>
+                <summary>Other passages considered <span id="retrieval-count"></span></summary>
+                <div class="retrieved-list" id="retrieved-list"></div>
+              </details>
+            </section>
+
+            <div class="main-footnote"><span class="footnote-line"></span><span>Answers are only as good as the evidence you index.</span></div>
+          </div>
+        </section>
+      </main>
+      <footer class="footer"><span>ATLAS RAG</span><span>HYBRID RETRIEVAL · GROUNDED ANSWERS · VERIFIED SOURCES</span><a href="/docs" target="_blank" rel="noreferrer">API DOCS ↗</a></footer>
+    </div>
+  </body>
+</html>

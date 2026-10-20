@@ -1,0 +1,64 @@
+services:
+  qdrant:
+    image: qdrant/qdrant:v1.13.2
+    restart: unless-stopped
+    volumes:
+      - qdrant_data:/qdrant/storage
+    expose:
+      - "6333"
+
+  api:
+    build:
+      context: .
+      args:
+        INSTALL_LOCAL_MODELS: ${INSTALL_LOCAL_MODELS:-false}
+    restart: unless-stopped
+    depends_on:
+      - qdrant
+    ports:
+      - "8000:8000"
+    environment:
+      APP_NAME: "${APP_NAME:-Atlas | Internal Knowledge}"
+      ENVIRONMENT: ${ENVIRONMENT:-production}
+      SQLITE_PATH: /data/rag.sqlite3
+      QDRANT_PATH: /data/qdrant
+      QDRANT_URL: http://qdrant:6333
+      QDRANT_API_KEY: ${QDRANT_API_KEY:-}
+      QDRANT_COLLECTION: ${QDRANT_COLLECTION:-company_docs}
+      LLM_PROVIDER: ${LLM_PROVIDER:-openai}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      OPENAI_BASE_URL: ${OPENAI_BASE_URL:-https://api.openai.com/v1}
+      OPENAI_CHAT_MODEL: ${OPENAI_CHAT_MODEL:-gpt-4o-mini}
+      OPENAI_EMBEDDING_MODEL: ${OPENAI_EMBEDDING_MODEL:-text-embedding-3-small}
+      OPENAI_EMBEDDING_DIMENSIONS: ${OPENAI_EMBEDDING_DIMENSIONS:-1536}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+      ANTHROPIC_BASE_URL: ${ANTHROPIC_BASE_URL:-https://api.anthropic.com}
+      ANTHROPIC_MODEL: ${ANTHROPIC_MODEL:-claude-sonnet-4-20250514}
+      REQUEST_TIMEOUT_SECONDS: ${REQUEST_TIMEOUT_SECONDS:-60}
+      MIN_CITATION_QUOTE_CHARS: ${MIN_CITATION_QUOTE_CHARS:-12}
+      EMBEDDING_PROVIDER: ${EMBEDDING_PROVIDER:-openai}
+      LOCAL_EMBEDDING_MODEL: ${LOCAL_EMBEDDING_MODEL:-sentence-transformers/all-MiniLM-L6-v2}
+      LOCAL_EMBEDDING_CHUNK_SIZE_TOKENS: ${LOCAL_EMBEDDING_CHUNK_SIZE_TOKENS:-160}
+      LOCAL_EMBEDDING_CHUNK_OVERLAP_TOKENS: ${LOCAL_EMBEDDING_CHUNK_OVERLAP_TOKENS:-32}
+      RERANKER_MODEL: ${RERANKER_MODEL:-}
+      MAX_UPLOAD_MB: ${MAX_UPLOAD_MB:-25}
+      CHUNK_SIZE_TOKENS: ${CHUNK_SIZE_TOKENS:-420}
+      CHUNK_OVERLAP_TOKENS: ${CHUNK_OVERLAP_TOKENS:-64}
+      RETRIEVAL_CANDIDATES: ${RETRIEVAL_CANDIDATES:-30}
+      DEFAULT_TOP_K: ${DEFAULT_TOP_K:-6}
+      MAX_TOP_K: ${MAX_TOP_K:-10}
+      RRF_K: ${RRF_K:-60}
+      DENSE_WEIGHT: ${DENSE_WEIGHT:-0.55}
+      LEXICAL_WEIGHT: ${LEXICAL_WEIGHT:-0.45}
+    volumes:
+      - atlas_data:/data
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/readyz', timeout=2)"]
+      interval: 30s
+      timeout: 4s
+      start_period: 25s
+      retries: 3
+
+volumes:
+  atlas_data:
+  qdrant_data:
